@@ -1,0 +1,15 @@
+User-agent: *
+Allow: /
+
+# Disallow admin and edit pages
+Disallow: /blogs/*/edit
+Disallow: /blogs/new
+
+# Disallow API endpoints
+Disallow: /api/
+
+# Sitemap location (dynamic)
+Sitemap: /sitemap.xml
+
+# Crawl delay (optional - helps with server load)
+Crawl-delay: 1

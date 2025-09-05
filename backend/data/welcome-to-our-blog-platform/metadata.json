@@ -1,0 +1,12 @@
+{
+  "id": "6f7d103b-71a3-49a8-ad2c-de021be15d11",
+  "slug": "welcome-to-the-blog-platform",
+  "title": "Welcome to the Blog Platform",
+  "author_name": "Eric",
+  "author_username": "eric",
+  "meta_name": "Welcome to the Blog Platform",
+  "meta_description": "Learn about a blog platform built with Go and React",
+  "created": "2025-08-31T07:10:00Z",
+  "updated": "2025-08-31T07:10:00Z",
+  "published": true
+}
