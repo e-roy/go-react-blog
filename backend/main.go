@@ -93,6 +93,14 @@ func (h spaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		// File doesn't exist, serve index.html (SPA routing)
 		indexPath := h.staticPath + "/" + h.indexPath
 		fmt.Printf("🔍 File not found, serving index.html from: %s\n", indexPath)
+		
+		// Check if index.html exists
+		if _, err := os.Stat(indexPath); err != nil {
+			fmt.Printf("🔍 ERROR: index.html not found at %s: %v\n", indexPath, err)
+			http.Error(w, "index.html not found", http.StatusNotFound)
+			return
+		}
+		
 		http.ServeFile(w, r, indexPath)
 		return
 	} else if err != nil {
@@ -105,6 +113,14 @@ func (h spaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if fileInfo.IsDir() {
 		indexPath := h.staticPath + "/" + h.indexPath
 		fmt.Printf("🔍 Directory found, serving index.html from: %s\n", indexPath)
+		
+		// Check if index.html exists
+		if _, err := os.Stat(indexPath); err != nil {
+			fmt.Printf("🔍 ERROR: index.html not found at %s: %v\n", indexPath, err)
+			http.Error(w, "index.html not found", http.StatusNotFound)
+			return
+		}
+		
 		http.ServeFile(w, r, indexPath)
 		return
 	}
