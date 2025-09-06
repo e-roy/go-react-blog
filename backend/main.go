@@ -46,6 +46,7 @@ func main() {
 		router.PathPrefix("/robots.txt").Handler(http.FileServer(http.Dir("dist/client/")))
 		
 		// For all other routes, serve the React app from dist directory
+		// This should catch /client/ and serve the React app
 		spa := spaHandler{staticPath: "dist", indexPath: "index.html"}
 		router.PathPrefix("/").Handler(spa)
 	}
@@ -74,7 +75,7 @@ type spaHandler struct {
 func (h spaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// Try to serve the file
 	path := h.staticPath + r.URL.Path
-	_, err := os.Stat(path)
+	fileInfo, err := os.Stat(path)
 	if os.IsNotExist(err) {
 		// File doesn't exist, serve index.html (SPA routing)
 		http.ServeFile(w, r, h.staticPath+"/"+h.indexPath)
@@ -83,6 +84,13 @@ func (h spaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	
+	// If it's a directory, serve index.html (SPA routing)
+	if fileInfo.IsDir() {
+		http.ServeFile(w, r, h.staticPath+"/"+h.indexPath)
+		return
+	}
+	
 	// File exists, serve it
 	http.ServeFile(w, r, path)
 }
