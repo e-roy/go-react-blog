@@ -57,10 +57,14 @@ func main() {
 		port = "8080" // Default for local development
 	}
 
+	// Debug: Print all environment variables
+	fmt.Printf("🔍 Environment PORT: %s\n", os.Getenv("PORT"))
+	fmt.Printf("🔍 Using port: %s\n", port)
+
 	// Start server
 	fmt.Printf("🚀 Go server starting on port %s\n", port)
-	fmt.Printf("📡 API available at http://localhost%s/api\n", port)
-	fmt.Printf("🏥 Health check at http://localhost%s/api/health\n", port)
+	fmt.Printf("📡 API available at http://localhost:%s/api\n", port)
+	fmt.Printf("🏥 Health check at http://localhost:%s/api/health\n", port)
 	fmt.Printf("📝 Blog data stored in: %s\n", dataDir)
 	
 	log.Fatal(http.ListenAndServe(":"+port, handler))
