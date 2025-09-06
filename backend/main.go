@@ -77,24 +77,35 @@ type spaHandler struct {
 }
 
 func (h spaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	// Debug logging
+	fmt.Printf("🔍 SPA Handler - Request: %s, StaticPath: %s, IndexPath: %s\n", r.URL.Path, h.staticPath, h.indexPath)
+	
 	// Try to serve the file
 	path := h.staticPath + r.URL.Path
+	fmt.Printf("🔍 Looking for file at: %s\n", path)
+	
 	fileInfo, err := os.Stat(path)
 	if os.IsNotExist(err) {
 		// File doesn't exist, serve index.html (SPA routing)
-		http.ServeFile(w, r, h.staticPath+"/"+h.indexPath)
+		indexPath := h.staticPath + "/" + h.indexPath
+		fmt.Printf("🔍 File not found, serving index.html from: %s\n", indexPath)
+		http.ServeFile(w, r, indexPath)
 		return
 	} else if err != nil {
+		fmt.Printf("🔍 Error checking file: %v\n", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	
 	// If it's a directory, serve index.html (SPA routing)
 	if fileInfo.IsDir() {
-		http.ServeFile(w, r, h.staticPath+"/"+h.indexPath)
+		indexPath := h.staticPath + "/" + h.indexPath
+		fmt.Printf("🔍 Directory found, serving index.html from: %s\n", indexPath)
+		http.ServeFile(w, r, indexPath)
 		return
 	}
 	
 	// File exists, serve it
+	fmt.Printf("🔍 Serving file: %s\n", path)
 	http.ServeFile(w, r, path)
 }
