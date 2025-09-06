@@ -40,11 +40,12 @@ func main() {
 	// Check if we're in production (Railway sets PORT)
 	if os.Getenv("PORT") != "" {
 		// Production: serve React Router build files
-		// Serve static assets from dist/client
-		router.PathPrefix("/assets/").Handler(http.StripPrefix("/assets/", http.FileServer(http.Dir("dist/client/assets/"))))
+		// Serve static assets from both dist/assets and dist/client/assets
+		router.PathPrefix("/assets/").Handler(http.StripPrefix("/assets/", http.FileServer(http.Dir("dist/assets/"))))
+		router.PathPrefix("/client/assets/").Handler(http.StripPrefix("/client/assets/", http.FileServer(http.Dir("dist/client/assets/"))))
 		router.PathPrefix("/robots.txt").Handler(http.FileServer(http.Dir("dist/client/")))
 		
-		// For all other routes, serve the React app
+		// For all other routes, serve the React app from dist directory
 		spa := spaHandler{staticPath: "dist", indexPath: "index.html"}
 		router.PathPrefix("/").Handler(spa)
 	}
