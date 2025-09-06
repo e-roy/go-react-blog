@@ -37,16 +37,66 @@ func main() {
 	handler = middleware.LoggingMiddleware(handler)
 	
 	// Serve static files from React build (for production)
-	// Check if we're in production (Railway sets PORT)
-	if os.Getenv("PORT") != "" {
+	// Check if we're running from dist directory or if dist directory exists
+	var staticPath string
+	var assetsPath string
+	var clientAssetsPath string
+	var robotsPath string
+	
+	// Debug: Check current working directory and file existence
+	wd, _ := os.Getwd()
+	fmt.Printf("🔍 Current working directory: %s\n", wd)
+	
+	// Check for index.html in current directory
+	if _, err := os.Stat("index.html"); err == nil {
+		// Running from dist directory
+		staticPath = "."
+		assetsPath = "./assets"
+		clientAssetsPath = "./client/assets"
+		robotsPath = "./client"
+		fmt.Printf("🔍 Production mode: running from dist directory, serving static files from current directory\n")
+	} else {
+		fmt.Printf("🔍 index.html not found in current directory: %v\n", err)
+	}
+	
+	// Check for dist directory (if running from parent directory)
+	if staticPath == "" {
+		if _, err := os.Stat("dist"); err == nil {
+			// Running from parent directory, dist exists
+			staticPath = "dist"
+			assetsPath = "dist/assets"
+			clientAssetsPath = "dist/client/assets"
+			robotsPath = "dist/client"
+			fmt.Printf("🔍 Production mode: dist directory found, serving static files from dist directory\n")
+		} else {
+			fmt.Printf("🔍 dist directory not found: %v\n", err)
+			
+			// Check if we're in backend directory and dist is in parent
+			if _, err := os.Stat("../dist"); err == nil {
+				staticPath = "../dist"
+				assetsPath = "../dist/assets"
+				clientAssetsPath = "../dist/client/assets"
+				robotsPath = "../dist/client"
+				fmt.Printf("🔍 Production mode: dist directory found in parent, serving static files from ../dist\n")
+			} else {
+				fmt.Printf("🔍 ../dist directory not found: %v\n", err)
+			}
+		}
+	}
+	
+	if staticPath == "" {
+		fmt.Printf("🔍 Development mode: no static files found, skipping static file serving\n")
+	}
+	
+	if staticPath != "" {
 		// Production: serve React Router build files
-		// Serve static assets from both dist/assets and dist/client/assets
-		router.PathPrefix("/assets/").Handler(http.StripPrefix("/assets/", http.FileServer(http.Dir("dist/assets/"))))
-		router.PathPrefix("/client/assets/").Handler(http.StripPrefix("/client/assets/", http.FileServer(http.Dir("dist/client/assets/"))))
-		router.PathPrefix("/robots.txt").Handler(http.FileServer(http.Dir("dist/client/")))
+		// Serve static assets from both assets and client/assets
+		router.PathPrefix("/assets/").Handler(http.StripPrefix("/assets/", http.FileServer(http.Dir(assetsPath))))
+		router.PathPrefix("/client/assets/").Handler(http.StripPrefix("/client/assets/", http.FileServer(http.Dir(clientAssetsPath))))
+		router.PathPrefix("/robots.txt").Handler(http.FileServer(http.Dir(robotsPath)))
 		
 		// Create SPA handler
-		spa := spaHandler{staticPath: "dist", indexPath: "index.html"}
+		spa := spaHandler{staticPath: staticPath, indexPath: "index.html"}
 		
 		// Handle root route explicitly
 		router.Handle("/", spa)

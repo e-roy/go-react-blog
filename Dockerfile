@@ -51,10 +51,6 @@ COPY --from=backend-builder /app/backend .
 # Copy frontend build from frontend stage
 COPY --from=frontend-builder /app/frontend/dist ./dist
 
-# Debug: List what's in the dist directory
-RUN ls -la dist/
-RUN ls -la dist/client/ || echo "No client directory"
-
 # Copy backend data directory
 COPY backend/data ./data
 
