@@ -45,9 +45,13 @@ func main() {
 		router.PathPrefix("/client/assets/").Handler(http.StripPrefix("/client/assets/", http.FileServer(http.Dir("dist/client/assets/"))))
 		router.PathPrefix("/robots.txt").Handler(http.FileServer(http.Dir("dist/client/")))
 		
-		// For all other routes, serve the React app from dist directory
-		// This should catch /client/ and serve the React app
+		// Create SPA handler
 		spa := spaHandler{staticPath: "dist", indexPath: "index.html"}
+		
+		// Handle root route explicitly
+		router.Handle("/", spa)
+		
+		// Handle all other routes with catch-all
 		router.PathPrefix("/").Handler(spa)
 	}
 
