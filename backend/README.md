@@ -1,21 +1,25 @@
 # Go Backend
 
-This is a well-structured Go HTTP server that provides a REST API for the React frontend. The codebase follows Go best practices with proper separation of concerns and includes a complete blog management system.
+This is a well-structured Go HTTP server that provides server-side rendering (SSR) and a REST API for the React frontend. The codebase follows Go best practices with proper separation of concerns and includes a complete blog management system with embedded data.
 
 ## Features
 
 - **HTTP Server**: Built with Go's standard `net/http` package
+- **Server-Side Rendering**: HTML templates with embedded data for instant loading
 - **Router**: Uses `gorilla/mux` for flexible routing
 - **CORS Support**: Configured to work with the React frontend
 - **JSON API**: RESTful endpoints returning JSON responses
 - **File-Based Storage**: Blog content stored as markdown files with JSON metadata
 - **SEO-Friendly URLs**: All blog operations use human-readable slugs for optimal SEO
 - **Rich Metadata**: Comprehensive blog metadata including author info and SEO fields
+- **SEO Optimization**: Meta tags, canonical URLs, Open Graph, and XML sitemaps
 - **Clean Architecture**: Well-organized code structure with separate packages and simplified API design
 - **Middleware Support**: CORS and logging middleware
 - **Interface-based Design**: Storage layer uses interfaces for flexibility
 - **Concurrency Safe**: Thread-safe operations with proper mutex usage
 - **Type Generation**: Automatic TypeScript type generation for frontend consistency
+- **Dynamic Asset Loading**: Automatic detection of built frontend assets
+- **Development Mode**: Hot reloading support with Vite dev server integration
 
 ## Project Structure
 
@@ -23,7 +27,7 @@ This is a well-structured Go HTTP server that provides a REST API for the React 
 backend/
 ├── go.mod              # Go module definition and dependencies
 ├── go.sum              # Go module checksums
-├── main.go             # Main server file (server setup only)
+├── main.go             # Main server file with SSR and routing
 ├── models/             # Data structures and response helpers
 │   ├── blog.go         # Blog structs, validation, and BlogStore interface
 │   └── response.go     # API response utilities
@@ -35,6 +39,12 @@ backend/
 │   └── routes.go       # Route definitions
 ├── middleware/         # HTTP middleware
 │   └── cors.go         # CORS and logging middleware
+├── templates/          # HTML templates for SSR
+│   ├── index.html      # Home page template
+│   ├── blog.html       # Blog post template
+│   ├── edit.html       # Edit page template
+│   ├── new.html        # New blog template
+│   └── notfound.html   # 404 page template
 ├── tools/              # Development and build tools
 │   └── generate-types.go # TypeScript type generator
 ├── generate-types.bat  # Windows batch script for type generation
@@ -187,13 +197,19 @@ export interface Blog {
 
 - `GET /api/health` - Health check endpoint with feature status
 
-### Blogs
+### Blogs (Write Operations)
 
-- `GET /api/blogs` - Get all blogs with full metadata
 - `POST /api/blogs` - Create a new blog
-- `GET /api/blogs/{slug}` - Get blog by SEO-friendly slug
 - `PUT /api/blogs/{slug}` - Update blog by slug
 - `DELETE /api/blogs/{slug}` - Delete blog by slug
+
+### Server-Side Rendered Routes
+
+- `GET /` - Home page with all blogs (SSR with embedded data)
+- `GET /blogs/{slug}` - Individual blog post (SSR with embedded data)
+- `GET /blogs/new` - New blog form
+- `GET /blogs/{slug}/edit` - Edit blog form
+- `GET /sitemap.xml` - XML sitemap for SEO
 
 ## Blog Storage Architecture
 
@@ -249,7 +265,23 @@ This design eliminates redundant code while providing a clean, intuitive API tha
 - Go 1.21 or later installed on your system
 - You can download it from [golang.org](https://golang.org/dl/)
 
-### Running the Server
+### Development Mode (Hot Reloading)
+
+For development with hot reloading:
+
+```bash
+# Start both backend and frontend
+.\dev.bat           # Windows
+# or
+./dev.sh            # Linux/Mac
+```
+
+This will start:
+
+- **Go backend** on http://localhost:8080 (with SSR and embedded data)
+- **Vite dev server** on http://localhost:5173 (for hot reloading)
+
+### Manual Backend Setup
 
 1. Navigate to the backend directory:
 
@@ -279,6 +311,8 @@ This design eliminates redundant code while providing a clean, intuitive API tha
 4. The server will start on port 8080:
    - API: http://localhost:8080/api
    - Health check: http://localhost:8080/api/health
+   - SSR Pages: http://localhost:8080/ (home), http://localhost:8080/blogs/{slug}
+   - Sitemap: http://localhost:8080/sitemap.xml
    - Blog data stored in: `data/` directory
 
 ### Environment Variables

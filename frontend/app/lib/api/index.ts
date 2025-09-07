@@ -10,11 +10,5 @@ export { extractData, extractDataArray, hasData } from "./utils";
 // Health Service
 export { checkHealth, getBackendStatus } from "./services/health";
 
-// Blog Service
-export {
-  fetchBlogs,
-  getBlogBySlug,
-  createBlog,
-  updateBlog,
-  deleteBlog,
-} from "./services/blogs";
+// Blog Service (write operations only - read data is embedded in HTML)
+export { createBlog, updateBlog, deleteBlog } from "./services/blogs";

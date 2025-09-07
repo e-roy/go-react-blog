@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="index, follow" />
+    <title>{{.Blog.Title}}</title>
+    <meta name="description" content="{{.Blog.MetaDescription}}" />
+    <link rel="canonical" href="{{.BaseURL}}/blogs/{{.Blog.Slug}}" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="{{.BaseURL}}/blogs/{{.Blog.Slug}}" />
+    <meta property="og:title" content="{{.Blog.Title}}" />
+    <meta property="og:description" content="{{.Blog.MetaDescription}}" />
+    <meta property="og:site_name" content="Go + React Blog Platform" />
+    <meta property="article:published_time" content="{{.Blog.Created.Format
+    "2006-01-02T15:04:05Z07:00"}}" /> <meta property="article:modified_time"
+    content="{{.Blog.Updated.Format "2006-01-02T15:04:05Z07:00"}}" />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="{{.BaseURL}}/blogs/{{.Blog.Slug}}" />
+    <meta property="twitter:title" content="{{.Blog.Title}}" />
+    <meta property="twitter:description" content="{{.Blog.MetaDescription}}" />
+    <script type="module" crossorigin src="/assets/{{.JSFile}}"></script>
+    <link rel="stylesheet" crossorigin href="/assets/{{.CSSFile}}" />
+    <script>
+      // Embed blog data directly in the page
+      window.__BLOG_DATA__ = {{.BlogData}};
+      window.__PAGE_TYPE__ = "blog";
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>

@@ -1,4 +1,3 @@
-import { Link } from "react-router";
 import Header from "./layout/Header";
 import Footer from "./layout/Footer";
 
@@ -40,12 +39,12 @@ const ErrorBoundary = ({
               {actionText}
             </button>
           ) : (
-            <Link
-              to={actionHref}
+            <a
+              href={actionHref}
               className="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
             >
               {actionText}
-            </Link>
+            </a>
           )}
         </div>
       </div>

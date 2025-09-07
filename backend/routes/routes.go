@@ -20,12 +20,8 @@ func SetupRoutes(blogHandler *handlers.BlogHandler) *mux.Router {
 	// Health check endpoint
 	api.HandleFunc("/health", healthHandler).Methods("GET")
 	
-	// Blogs endpoints
-	api.HandleFunc("/blogs", blogHandler.GetBlogs).Methods("GET")
+	// Blog endpoints (write operations only - read data is embedded in HTML)
 	api.HandleFunc("/blogs", blogHandler.CreateBlog).Methods("POST")
-	
-	// Blog routes (slug-based, SEO-friendly)
-	api.HandleFunc("/blogs/{slug}", blogHandler.GetBlogBySlug).Methods("GET")
 	api.HandleFunc("/blogs/{slug}", blogHandler.UpdateBlogBySlug).Methods("PUT")
 	api.HandleFunc("/blogs/{slug}", blogHandler.DeleteBlogBySlug).Methods("DELETE")
 

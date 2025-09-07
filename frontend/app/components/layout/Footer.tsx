@@ -1,5 +1,4 @@
 import React from "react";
-import { Link } from "react-router";
 import { Mail } from "lucide-react";
 
 const Footer: React.FC = () => {
@@ -80,21 +79,21 @@ const Footer: React.FC = () => {
             </h4>
             <ul className="space-y-3">
               <li>
-                <Link
-                  to="/"
+                <a
+                  href="/"
                   className="text-gray-600 hover:text-gray-900 text-sm transition-colors duration-200"
                 >
                   Home
-                </Link>
+                </a>
               </li>
 
               <li>
-                <Link
-                  to="/blogs/new"
+                <a
+                  href="/blogs/new"
                   className="text-gray-600 hover:text-gray-900 text-sm transition-colors duration-200"
                 >
                   Write Post
-                </Link>
+                </a>
               </li>
             </ul>
           </div>

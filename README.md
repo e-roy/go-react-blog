@@ -1,17 +1,20 @@
 # Go + React Blog Platform
 
-A lightweight, full-stack blog platform built with **Go** for the backend and **React + TypeScript + Vite + Tailwind CSS** for the frontend. This project serves as both a practical blog solution and a learning journey for Go development.
+A lightweight, full-stack blog platform built with **Go** for the backend and **React + TypeScript + Vite + Tailwind CSS** for the frontend. Features server-side rendering (SSR) with embedded data for optimal performance and SEO. This project serves as both a practical blog solution and a learning journey for Go development.
 
 ## 🚀 Features
 
 - **Backend**: Go HTTP server with file-based storage (no database required)
 - **Frontend**: Modern React application with TypeScript
+- **Server-Side Rendering (SSR)**: Go backend serves fully rendered HTML with embedded data
 - **Blog Management**: Create, edit, and delete blog posts through web interface
-- **SEO-Friendly**: Human-readable URLs using slugs
+- **SEO-Friendly**: Human-readable URLs, canonical links, and comprehensive meta tags
+- **Social Media Ready**: Open Graph and Twitter Card meta tags for rich sharing
 - **Markdown Support**: Rich text editing with live preview
 - **Type Safety**: Auto-generated TypeScript types from Go backend
 - **File Storage**: Markdown content with JSON metadata
 - **Responsive Design**: Works on desktop, tablet, and mobile
+- **Hot Reloading**: Development mode with Vite dev server integration
 - **Low Cost**: Designed for Railway deployment without database dependencies
 
 ## 🏗️ Project Structure
@@ -24,6 +27,11 @@ go-react/
 │   ├── storage/            # File-based blog storage
 │   ├── routes/             # API routing configuration
 │   ├── middleware/         # CORS and logging middleware
+│   ├── templates/          # HTML templates for SSR
+│   │   ├── index.html      # Home page template
+│   │   ├── blog.html       # Blog post template
+│   │   ├── edit.html       # Edit page template
+│   │   └── new.html        # New blog template
 │   ├── tools/              # TypeScript type generator
 │   ├── data/               # Blog content storage
 │   │   └── {slug}/         # Individual blog directories
@@ -35,12 +43,12 @@ go-react/
 ├── frontend/                # React frontend application
 │   ├── app/
 │   │   ├── components/     # React components
-│   │   ├── routes/         # Page components
+│   │   ├── pages/          # Page components (no client-side routing)
 │   │   ├── lib/            # API client and utilities
 │   │   ├── types/          # TypeScript types
 │   │   └── main.tsx        # React entry point
 │   ├── package.json        # Frontend dependencies
-│   ├── vite.config.ts      # Vite configuration
+│   ├── vite.config.ts      # Vite configuration with proxy
 │   ├── tailwind.config.js  # Tailwind CSS config
 │   └── README.md           # Frontend documentation
 └── README.md               # This file
@@ -50,30 +58,60 @@ go-react/
 
 ### Backend
 
-- **Go 1.21+** - Programming language
+- **Go 1.22+** - Programming language
 - **Gorilla Mux** - HTTP router and URL matcher
+- **HTML Templates** - Server-side rendering with Go templates
 - **File-based Storage** - Markdown + JSON metadata (no database)
 - **UUID** - Unique identifiers for blog posts
 - **CORS** - Cross-origin resource sharing support
 - **Type Generation** - Automatic TypeScript type generation
+- **Dynamic Asset Loading** - Automatic detection of built frontend assets
 
 ### Frontend
 
 - **React 19** - Modern React with hooks and patterns
 - **TypeScript** - Type safety with auto-generated types
-- **Vite** - Fast build tool and dev server
+- **Vite** - Fast build tool and dev server with hot reloading
 - **Tailwind CSS** - Utility-first CSS framework
-- **React Router** - Client-side routing
+- **Embedded Data** - Server-side data injection for instant loading
 - **Axios** - HTTP client for API calls
 
 ## 🚀 Quick Start
 
 ### Prerequisites
 
-- **Go 1.21+** - [Download here](https://golang.org/dl/)
+- **Go 1.22+** - [Download here](https://golang.org/dl/)
 - **Node.js 18+** - [Download here](https://nodejs.org/)
 
-### 1. Start the Go Backend
+### Development Mode (Hot Reloading)
+
+For development with hot reloading:
+
+```bash
+# Start both backend and frontend
+.\dev.bat           # Windows
+# or
+./dev.sh            # Linux/Mac
+```
+
+This will start:
+
+- **Go backend** on http://localhost:8080 (with SSR and embedded data)
+- **Vite dev server** on http://localhost:5173 (for hot reloading)
+
+### Production Mode
+
+For production testing:
+
+```bash
+# Build and run with Docker
+docker build -t go-react-app .
+docker run -p 8080:8080 go-react-app
+```
+
+### Manual Setup
+
+1. **Start the Go Backend**
 
 ```bash
 cd backend
@@ -81,9 +119,7 @@ go mod tidy          # Download dependencies
 go run main.go       # Start the server
 ```
 
-The backend will start on **http://localhost:8080**
-
-### 2. Start the React Frontend
+2. **Start the React Frontend** (for development)
 
 ```bash
 cd frontend
@@ -91,28 +127,35 @@ npm install          # Install dependencies
 npm run dev         # Start development server
 ```
 
-The frontend will start on **http://localhost:5173**
+### Access the Application
 
-### 3. Open Your Browser
-
-Navigate to **http://localhost:5173** to see the application in action!
+- **Development**: http://localhost:8080 (Go backend with SSR)
+- **Hot Reloading**: http://localhost:5173 (Vite dev server)
+- **Production**: http://localhost:8080 (Docker container)
 
 ## 📡 API Endpoints
 
 The Go backend provides these REST endpoints:
 
 - `GET /api/health` - Health check
-- `GET /api/blogs` - Get all blog posts
 - `POST /api/blogs` - Create a new blog post
-- `GET /api/blogs/{slug}` - Get blog post by slug
 - `PUT /api/blogs/{slug}` - Update blog post by slug
 - `DELETE /api/blogs/{slug}` - Delete blog post by slug
+
+### Server-Side Rendered Routes
+
+- `GET /` - Home page with all blogs (SSR with embedded data)
+- `GET /blogs/{slug}` - Individual blog post (SSR with embedded data)
+- `GET /blogs/new` - New blog form
+- `GET /blogs/{slug}/edit` - Edit blog form
+- `GET /sitemap.xml` - XML sitemap for SEO
 
 ## 🎯 What You'll Learn
 
 ### Go Backend
 
 - HTTP server setup with Go
+- Server-side rendering (SSR) with HTML templates
 - File-based storage (no database required)
 - RESTful API design with slug-based routing
 - JSON handling and structs
@@ -121,6 +164,8 @@ The Go backend provides these REST endpoints:
 - Concurrency with goroutines and mutexes
 - Type generation for frontend integration
 - Middleware (CORS, logging)
+- Dynamic asset loading and template rendering
+- SEO optimization with meta tags and sitemaps
 
 ### React Frontend
 
@@ -130,15 +175,19 @@ The Go backend provides these REST endpoints:
 - Markdown editing and preview
 - Form handling and validation
 - Responsive UI design with Tailwind CSS
-- State management and routing
+- State management (no client-side routing)
 - Component composition and reusability
+- Embedded data consumption from SSR
 
 ### Full-Stack Integration
 
 - Type-safe API communication
 - Automatic type synchronization
-- SEO-friendly URL structure
+- SEO-friendly URL structure with server-side rendering
 - File-based content management
+- Embedded data injection for instant loading
+- Development mode with hot reloading
+- Production optimization with Docker
 - Railway deployment preparation
 
 ## 🔧 Development
@@ -165,14 +214,17 @@ npm run lint            # Run ESLint
 
 ## 🌟 Key Features Demonstrated
 
-1. **Blog Management**: Complete CRUD operations for blog posts
-2. **SEO-Friendly URLs**: Human-readable slugs instead of IDs
-3. **Markdown Support**: Rich text editing with live preview
-4. **File-based Storage**: No database required, content stored as files
-5. **Type Safety**: Auto-generated TypeScript types from Go backend
-6. **Responsive Design**: Works perfectly on all devices
-7. **Web-based Editing**: All content management through the frontend
-8. **Low Cost Deployment**: Optimized for Railway without database costs
+1. **Server-Side Rendering**: Go backend serves fully rendered HTML with embedded data
+2. **Blog Management**: Complete CRUD operations for blog posts
+3. **SEO Optimization**: Meta tags, canonical URLs, Open Graph, and XML sitemaps
+4. **SEO-Friendly URLs**: Human-readable slugs instead of IDs
+5. **Markdown Support**: Rich text editing with live preview
+6. **File-based Storage**: No database required, content stored as files
+7. **Type Safety**: Auto-generated TypeScript types from Go backend
+8. **Responsive Design**: Works perfectly on all devices
+9. **Hot Reloading**: Development mode with instant frontend updates
+10. **Web-based Editing**: All content management through the frontend
+11. **Low Cost Deployment**: Optimized for Railway without database costs
 
 ## 📚 Learning Resources
 

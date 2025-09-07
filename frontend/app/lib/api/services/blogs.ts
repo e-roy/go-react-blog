@@ -1,28 +1,9 @@
 import { apiClient } from "../client";
 import type { ApiResponse, Blog, CreateBlogRequest } from "@/types";
-import { extractData, extractDataArray } from "../utils";
+import { extractData } from "../utils";
 
-// Fetch all blogs
-export const fetchBlogs = async (): Promise<Blog[]> => {
-  try {
-    const response = await apiClient.get<ApiResponse<Blog[]>>("/blogs");
-    return extractDataArray(response);
-  } catch (error) {
-    console.error("Failed to fetch blogs:", error);
-    throw new Error("Failed to fetch blogs");
-  }
-};
-
-// Get a single blog by slug
-export const getBlogBySlug = async (slug: string): Promise<Blog> => {
-  try {
-    const response = await apiClient.get<ApiResponse<Blog>>(`/blogs/${slug}`);
-    return extractData(response);
-  } catch (error) {
-    console.error("Failed to fetch blog:", error);
-    throw new Error("Failed to fetch blog");
-  }
-};
+// Note: Read operations (fetchBlogs, getBlogBySlug) are no longer needed
+// as data is embedded directly in the HTML via server-side rendering
 
 // Create a new blog
 export const createBlog = async (

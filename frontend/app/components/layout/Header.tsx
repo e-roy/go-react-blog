@@ -1,5 +1,4 @@
 import React from "react";
-import { Link, useLocation } from "react-router";
 import { SITE_CONFIG } from "@/lib/config";
 
 interface HeaderProps {
@@ -11,11 +10,7 @@ const Header: React.FC<HeaderProps> = ({
   backgroundImage,
   title = SITE_CONFIG.name,
 }) => {
-  const location = useLocation();
-  const currentUrl =
-    typeof window !== "undefined"
-      ? window.location.origin + location.pathname
-      : "";
+  const currentUrl = typeof window !== "undefined" ? window.location.href : "";
   const shareText = `Check out this blog post: ${title}`;
 
   const shareToX = () => {
@@ -63,9 +58,9 @@ const Header: React.FC<HeaderProps> = ({
         <div className="flex justify-between items-start p-6">
           {/* Left - Small Name */}
 
-          <Link to="/" className="text-white text-lg font-medium">
+          <a href="/" className="text-white text-lg font-medium">
             {SITE_CONFIG.name}
-          </Link>
+          </a>
 
           {/* Right - Share Buttons */}
           <div className="flex items-center space-x-4">

@@ -19,42 +19,6 @@ func NewBlogHandler(store models.BlogStore) *BlogHandler {
 	return &BlogHandler{store: store}
 }
 
-// GetBlogs returns all blogs
-func (h *BlogHandler) GetBlogs(w http.ResponseWriter, r *http.Request) {
-	blogs, err := h.store.GetAllBlogs()
-	if err != nil {
-		models.SendError(w, http.StatusInternalServerError, "Failed to retrieve blogs", err.Error())
-		return
-	}
-
-	// Convert to response format
-	blogResponses := make([]models.BlogResponse, len(blogs))
-	for i, blog := range blogs {
-		blogResponses[i] = blog.ToResponse()
-	}
-
-	models.SendSuccess(w, http.StatusOK, "Blogs retrieved successfully", blogResponses)
-}
-
-
-// GetBlogBySlug returns a specific blog by slug (for SEO-friendly URLs)
-func (h *BlogHandler) GetBlogBySlug(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	slug := vars["slug"]
-
-	if slug == "" {
-		models.SendError(w, http.StatusBadRequest, "Invalid blog slug", "Slug is required")
-		return
-	}
-
-	blog, err := h.store.GetBlogBySlug(slug)
-	if err != nil {
-		models.SendError(w, http.StatusNotFound, "Blog not found", err.Error())
-		return
-	}
-
-	models.SendSuccess(w, http.StatusOK, "Blog retrieved successfully", blog.ToResponse())
-}
 
 
 

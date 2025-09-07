@@ -1,6 +1,5 @@
-// import react from "@vitejs/plugin-react";
+import react from "@vitejs/plugin-react";
 import babel from "vite-plugin-babel";
-import { reactRouter } from "@react-router/dev/vite";
 import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
@@ -9,7 +8,7 @@ import tsconfigPaths from "vite-tsconfig-paths";
 export default defineConfig({
   plugins: [
     tailwindcss(),
-    reactRouter(),
+    react(),
     tsconfigPaths(),
     babel({
       babelConfig: {
@@ -17,6 +16,15 @@ export default defineConfig({
       },
     }),
   ],
+  build: {
+    outDir: "dist",
+    assetsDir: "assets",
+    rollupOptions: {
+      output: {
+        manualChunks: undefined,
+      },
+    },
+  },
   server: {
     port: 5173,
     host: true,

@@ -1,5 +1,4 @@
 import { Blog } from "@/types/generated";
-import { Link } from "react-router";
 import { Image, Calendar, ArrowRight } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 
@@ -84,13 +83,13 @@ const BlogCard = ({ blog }: { blog: Blog }) => {
 
           {/* Read More Button */}
           <div className="mt-auto">
-            <Link
-              to={`/blogs/${blog.slug}`}
+            <a
+              href={`/blogs/${blog.slug}`}
               className="inline-flex items-center hover:bg-gray-100 text-gray-700 px-4 py-2 rounded-md text-sm font-medium gap-2 border border-gray-200 transition-colors duration-200"
               aria-label={`Read more about ${blog.title}`}
             >
               Read more about {blog.title} <ArrowRight className="w-4 h-4" />
-            </Link>
+            </a>
           </div>
         </div>
       </div>

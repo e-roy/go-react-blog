@@ -1,4 +1,4 @@
-import { fetchBlogs } from "./api";
+import { getEmbeddedBlogData } from "./embedded-data";
 
 export interface SitemapUrl {
   loc: string;
@@ -14,9 +14,9 @@ export interface SitemapUrl {
   priority: number;
 }
 
-export async function generateSitemap(baseUrl: string): Promise<string> {
+export function generateSitemap(baseUrl: string): string {
   try {
-    const blogs = await fetchBlogs();
+    const blogs = getEmbeddedBlogData();
     const currentDate = new Date().toISOString().split("T")[0];
 
     const urls: SitemapUrl[] = [
@@ -28,15 +28,17 @@ export async function generateSitemap(baseUrl: string): Promise<string> {
       },
     ];
 
-    // Add individual blog posts
-    blogs.forEach((blog) => {
-      urls.push({
-        loc: `${baseUrl}/blogs/${blog.slug}`,
-        lastmod: new Date(blog.created).toISOString().split("T")[0],
-        changefreq: "monthly",
-        priority: 0.8,
+    // Add individual blog posts if data is available
+    if (blogs && Array.isArray(blogs)) {
+      blogs.forEach((blog: any) => {
+        urls.push({
+          loc: `${baseUrl}/blogs/${blog.slug}`,
+          lastmod: new Date(blog.created).toISOString().split("T")[0],
+          changefreq: "monthly",
+          priority: 0.8,
+        });
       });
-    });
+    }
 
     return generateSitemapXml(urls);
   } catch (error) {
