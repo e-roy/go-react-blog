@@ -81,7 +81,7 @@ const BlogPost = () => {
 
             {/* Last Updated */}
             {blog.updated !== blog.created && (
-              <div className="text-xs text-gray-400">
+              <div className="text-xs text-gray-500">
                 Last updated: {new Date(blog.updated).toLocaleDateString()}
               </div>
             )}

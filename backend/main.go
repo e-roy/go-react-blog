@@ -26,20 +26,21 @@ type AssetInfo struct {
 	CSSFile string
 }
 
-// findAssetFiles finds the current JS and CSS files in the dist/assets directory
+// findAssetFiles finds the current JS and CSS files in the dist directory
 func findAssetFiles(staticPath string) (*AssetInfo, error) {
-	assetsDir := filepath.Join(staticPath, "assets")
+	jsDir := filepath.Join(staticPath, "js")
+	cssDir := filepath.Join(staticPath, "css")
 	
-	// Find JS file
-	jsFiles, err := filepath.Glob(filepath.Join(assetsDir, "index-*.js"))
+	// Find JS file (look for index-*.js in js directory)
+	jsFiles, err := filepath.Glob(filepath.Join(jsDir, "index-*.js"))
 	if err != nil || len(jsFiles) == 0 {
-		return nil, fmt.Errorf("no JS files found in assets directory")
+		return nil, fmt.Errorf("no JS files found in js directory")
 	}
 	
-	// Find CSS file
-	cssFiles, err := filepath.Glob(filepath.Join(assetsDir, "index-*.css"))
+	// Find CSS file (look for index-*.css in css directory)
+	cssFiles, err := filepath.Glob(filepath.Join(cssDir, "index-*.css"))
 	if err != nil || len(cssFiles) == 0 {
-		return nil, fmt.Errorf("no CSS files found in assets directory")
+		return nil, fmt.Errorf("no CSS files found in css directory")
 	}
 	
 	// Get just the filename (not full path)
@@ -126,10 +127,28 @@ func main() {
 		// Serve static assets
 		router.PathPrefix("/assets/").Handler(http.StripPrefix("/assets/", http.FileServer(http.Dir(staticPath+"/assets"))))
 		
-		// Serve robots.txt if it exists
-		if _, err := os.Stat(staticPath + "/robots.txt"); err == nil {
-			router.PathPrefix("/robots.txt").Handler(http.FileServer(http.Dir(staticPath)))
-		}
+		// Serve robots.txt dynamically with base URL
+		router.HandleFunc("/robots.txt", func(w http.ResponseWriter, r *http.Request) {
+			// Determine base URL for sitemap
+			baseURL := "https://" + r.Host
+			if strings.Contains(r.Host, "localhost") {
+				baseURL = "http://" + r.Host
+			}
+			
+			// Read robots.txt template
+			robotsPath := filepath.Join(staticPath, "robots.txt")
+			robotsContent, err := os.ReadFile(robotsPath)
+			if err != nil {
+				http.NotFound(w, r)
+				return
+			}
+			
+			// Replace template variable with actual base URL
+			robotsText := strings.ReplaceAll(string(robotsContent), "{{.BaseURL}}", baseURL)
+			
+			w.Header().Set("Content-Type", "text/plain")
+			w.Write([]byte(robotsText))
+		})
 		
 		// Find current asset files
 		assetInfo, err := findAssetFiles(staticPath)

@@ -9,7 +9,7 @@ Disallow: /blogs/new
 Disallow: /api/
 
 # Sitemap location (dynamic)
-Sitemap: /sitemap.xml
+Sitemap: {{.BaseURL}}/sitemap.xml
 
 # Crawl delay (optional - helps with server load)
 Crawl-delay: 1

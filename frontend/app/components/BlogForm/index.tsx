@@ -1,8 +1,8 @@
 import { useState } from "react";
-import MarkdownEditor from "@/components/MarkdownEditor";
 import Footer from "@/components/layout/Footer";
 import type { CreateBlogRequest } from "@/types/generated";
 
+import MarkdownEditor from "./MarkdownEditor";
 import InlineEditableField from "./InlineEditableField";
 import MetadataDropdown from "./MetadataDropdown";
 import FormHeader from "./FormHeader";

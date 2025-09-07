@@ -14,7 +14,7 @@ import {
   Edit3,
   Type,
 } from "lucide-react";
-import MarkdownContent from "./MarkdownContent";
+import MarkdownContent from "../MarkdownContent";
 
 interface MarkdownEditorProps {
   value: string;
