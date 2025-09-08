@@ -49,11 +49,18 @@ COPY --from=backend-builder /app/backend .
 # Copy frontend build from frontend stage (direct path)
 COPY --from=frontend-builder /app/frontend/dist ./frontend/dist
 
-# Copy backend data directory
-COPY backend/data ./data
+# Copy seed data to separate directory (for initialization)
+COPY backend/data ./seed-data
 
 # Copy HTML templates
 COPY backend/templates ./templates
+
+# Copy init script
+COPY init-data.sh ./
+RUN chmod +x init-data.sh
+
+# Create data directory (will be mounted by platform)
+RUN mkdir -p /app/data
 
 # Expose port
 EXPOSE 8080
@@ -62,5 +69,5 @@ EXPOSE 8080
 ENV PORT=8080
 ENV BLOG_DATA_DIR=/app/data
 
-# Start the application
-CMD ["./backend"]
+# Start the application with init script
+CMD ["./init-data.sh"]

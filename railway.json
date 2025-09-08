@@ -8,5 +8,11 @@
     "healthcheckTimeout": 100,
     "restartPolicyType": "ON_FAILURE",
     "restartPolicyMaxRetries": 10
-  }
+  },
+  "volumes": [
+    {
+      "name": "blog-data",
+      "mountPath": "/app/data"
+    }
+  ]
 }
