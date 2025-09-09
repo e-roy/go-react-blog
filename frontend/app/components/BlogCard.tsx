@@ -23,17 +23,22 @@ const BlogCard = ({ blog }: { blog: Blog }) => {
       <div className="flex flex-col lg:flex-row gap-6">
         {/* Image Section */}
         <div className="w-full lg:w-2/5 h-48 lg:h-48 bg-gray-200 flex-shrink-0">
-          {/* {blog.image_url ? (
+          {blog.image ? (
             <img
-              src={blog.image_url}
+              src={`/api/images/${blog.slug}/${blog.image}?v=${Date.now()}`}
               alt={blog.title}
               className="w-full h-full object-cover"
+              onError={(e) => {
+                console.error("Failed to load image:", e.currentTarget.src);
+                // Hide the image on error
+                e.currentTarget.style.display = "none";
+              }}
             />
-          ) : ( */}
-          <div className="w-full h-full bg-gradient-to-br from-sky-200 to-blue-100 flex items-center justify-center">
-            <Image className="w-12 h-12 text-blue-400" />
-          </div>
-          {/* )} */}
+          ) : (
+            <div className="w-full h-full bg-gradient-to-br from-sky-200 to-blue-100 flex items-center justify-center">
+              <Image className="w-12 h-12 text-blue-400" />
+            </div>
+          )}
         </div>
 
         {/* Content Section */}

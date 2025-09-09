@@ -24,6 +24,9 @@ func SetupRoutes(blogHandler *handlers.BlogHandler) *mux.Router {
 	api.HandleFunc("/blogs", blogHandler.CreateBlog).Methods("POST")
 	api.HandleFunc("/blogs/{slug}", blogHandler.UpdateBlogBySlug).Methods("PUT")
 	api.HandleFunc("/blogs/{slug}", blogHandler.DeleteBlogBySlug).Methods("DELETE")
+	
+	// Image endpoints
+	api.HandleFunc("/images/{slug}/{filename}", blogHandler.ServeImage).Methods("GET")
 
 	return r
 }

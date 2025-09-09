@@ -1,6 +1,7 @@
 import { getEmbeddedSingleBlogData } from "@/lib/embedded-data";
 import BlogForm from "@/components/BlogForm";
 import type { CreateBlogRequest, Blog } from "@/types/generated";
+import { updateBlog, deleteBlog } from "@/lib/api/services/blogs";
 
 const EditBlogPage = () => {
   // Get embedded data directly from server-side rendering
@@ -19,35 +20,15 @@ const EditBlogPage = () => {
 
   const blog = embeddedData as Blog;
 
-  const handleUpdateBlog = async (blogData: CreateBlogRequest) => {
+  const handleUpdateBlog = async (
+    blogData: CreateBlogRequest,
+    selectedImage?: File | null
+  ) => {
     try {
-      // Convert form data to update request
-      const updateRequest = {
-        title: blogData.title,
-        content: blogData.content,
-        meta_name: blogData.meta_name,
-        meta_description: blogData.meta_description,
-        slug: blogData.slug,
-        published: blogData.published,
-      };
-
-      const response = await fetch(`/api/blogs/${blog.slug}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(updateRequest),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to update blog");
-      }
-
-      const updatedBlog = await response.json();
-      // console.log("Blog updated successfully:", updatedBlog);
+      const updatedBlog = await updateBlog(blog.slug, blogData, selectedImage);
 
       // Navigate back to the blog post (use new slug if it changed)
-      window.location.href = `/blogs/${updatedBlog.data.slug}`;
+      window.location.href = `/blogs/${updatedBlog.slug}`;
     } catch (err) {
       console.error("Failed to update blog:", err);
       throw err; // Re-throw to let the form handle the error
@@ -60,13 +41,7 @@ const EditBlogPage = () => {
 
   const handleDeleteBlog = async () => {
     try {
-      const response = await fetch(`/api/blogs/${blog.slug}`, {
-        method: "DELETE",
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to delete blog");
-      }
+      await deleteBlog(blog.slug);
 
       // Navigate to home page after successful deletion
       window.location.href = "/";
@@ -80,6 +55,7 @@ const EditBlogPage = () => {
   const initialFormData: CreateBlogRequest = {
     title: blog.title,
     content: blog.content,
+    image: blog.image,
     author_name: blog.author_name,
     author_username: blog.author_username,
     published: blog.published,

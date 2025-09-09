@@ -4,6 +4,7 @@ interface FormHeaderProps {
   title: string;
   isEditing: boolean;
   onToggleMetadata: () => void;
+  backgroundImage?: string;
   children?: React.ReactNode; // For the metadata dropdown
 }
 
@@ -11,12 +12,26 @@ const FormHeader = ({
   title,
   isEditing,
   onToggleMetadata,
+  backgroundImage,
   children,
 }: FormHeaderProps) => {
   return (
     <header className="relative h-96 overflow-hidden">
-      {/* Background Gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-300 to-sky-600" />
+      {/* Background Image or Gradient */}
+      <div
+        className={`absolute inset-0 ${
+          backgroundImage
+            ? "bg-cover bg-center bg-no-repeat"
+            : "bg-gradient-to-br from-blue-300 to-sky-600"
+        }`}
+        style={
+          backgroundImage
+            ? {
+                backgroundImage: `url('${backgroundImage}')`,
+              }
+            : {}
+        }
+      />
 
       {/* Dark Overlay */}
       <div className="absolute inset-0 bg-black/30" />

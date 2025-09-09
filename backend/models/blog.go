@@ -13,6 +13,7 @@ type BlogStore interface {
 	CreateBlog(blog Blog) (Blog, error)
 	UpdateBlogBySlug(slug string, updates UpdateBlogRequest) (*Blog, error)
 	DeleteBlogBySlug(slug string) error
+	SaveBlogImage(slug string, imageFilename string, imageData []byte) error
 }
 
 // Blog represents a blog post in the system
@@ -20,6 +21,7 @@ type Blog struct {
 	ID              uuid.UUID `json:"id"`
 	Title           string    `json:"title"`
 	Content         string    `json:"content"`
+	Image           string    `json:"image"` // Image filename
 	AuthorName      string    `json:"author_name"`
 	AuthorUsername  string    `json:"author_username"`
 	MetaName        string    `json:"meta_name"`
@@ -34,6 +36,7 @@ type Blog struct {
 type CreateBlogRequest struct {
 	Title           string `json:"title" validate:"required"`
 	Content         string `json:"content" validate:"required"`
+	Image           string `json:"image"` // Image filename
 	AuthorName      string `json:"author_name"`
 	AuthorUsername  string `json:"author_username"`
 	MetaName        string `json:"meta_name"`
@@ -46,6 +49,9 @@ type CreateBlogRequest struct {
 type UpdateBlogRequest struct {
 	Title           *string `json:"title,omitempty"`
 	Content         *string `json:"content,omitempty"`
+	Image           *string `json:"image,omitempty"` // Image filename
+	AuthorName      *string `json:"author_name,omitempty"`
+	AuthorUsername  *string `json:"author_username,omitempty"`
 	MetaName        *string `json:"meta_name,omitempty"`
 	MetaDescription *string `json:"meta_description,omitempty"`
 	Slug            *string `json:"slug,omitempty"`
@@ -57,6 +63,7 @@ type BlogResponse struct {
 	ID              string `json:"id"`
 	Title           string `json:"title"`
 	Content         string `json:"content"`
+	Image           string `json:"image"` // Image filename
 	AuthorName      string `json:"author_name"`
 	AuthorUsername  string `json:"author_username"`
 	MetaName        string `json:"meta_name"`
@@ -73,6 +80,7 @@ func (b *Blog) ToResponse() BlogResponse {
 		ID:              b.ID.String(),
 		Title:           b.Title,
 		Content:         b.Content,
+		Image:           b.Image,
 		AuthorName:      b.AuthorName,
 		AuthorUsername:  b.AuthorUsername,
 		MetaName:        b.MetaName,

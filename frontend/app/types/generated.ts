@@ -8,6 +8,7 @@ export interface Blog {
   id: string;
   title: string;
   content: string;
+  image: string;
   author_name: string;
   author_username: string;
   meta_name: string;
@@ -23,6 +24,7 @@ export interface Blog {
 export interface CreateBlogRequest {
   title: string;
   content: string;
+  image: string;
   author_name: string;
   author_username: string;
   meta_name: string;
@@ -36,6 +38,9 @@ export interface CreateBlogRequest {
 export interface UpdateBlogRequest {
   title: string | null;
   content: string | null;
+  image: string | null;
+  author_name: string | null;
+  author_username: string | null;
   meta_name: string | null;
   meta_description: string | null;
   slug: string | null;
@@ -48,6 +53,7 @@ export interface BlogResponse {
   id: string;
   title: string;
   content: string;
+  image: string;
   author_name: string;
   author_username: string;
   meta_name: string;

@@ -10,7 +10,10 @@ import FormActions from "./FormActions";
 import BlogMetaInfo from "./BlogMetaInfo";
 
 interface BlogFormProps {
-  onSubmit: (blogData: CreateBlogRequest) => Promise<void>;
+  onSubmit: (
+    blogData: CreateBlogRequest,
+    selectedImage?: File | null
+  ) => Promise<void>;
   onCancel: () => void;
   initialData?: Partial<CreateBlogRequest>;
   isEditing?: boolean;
@@ -27,6 +30,7 @@ const BlogForm = ({
   const [formData, setFormData] = useState<CreateBlogRequest>({
     title: initialData?.title || "",
     content: initialData?.content || "",
+    image: initialData?.image || "",
     author_name: initialData?.author_name || "",
     author_username: initialData?.author_username || "",
     published: initialData?.published || false,
@@ -40,6 +44,10 @@ const BlogForm = ({
   const [showMetadataDropdown, setShowMetadataDropdown] = useState(false);
   const [editingField, setEditingField] = useState<string | null>(null);
   const [hasChanges, setHasChanges] = useState(false);
+
+  // Image upload state
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   // Function to generate slug from title
   const generateSlug = (title: string): string => {
@@ -106,6 +114,48 @@ const BlogForm = ({
     return Object.keys(newErrors).length === 0;
   };
 
+  // Handle image file selection
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith("image/")) {
+        setErrors((prev) => ({
+          ...prev,
+          image: "Please select a valid image file",
+        }));
+        return;
+      }
+
+      // Validate file size (max 10MB)
+      if (file.size > 10 * 1024 * 1024) {
+        setErrors((prev) => ({
+          ...prev,
+          image: "Image file is too large (max 10MB)",
+        }));
+        return;
+      }
+
+      setSelectedImage(file);
+      setErrors((prev) => ({ ...prev, image: "" }));
+
+      // Create preview
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setImagePreview(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Remove image
+  const handleRemoveImage = () => {
+    setSelectedImage(null);
+    setImagePreview(null);
+    setFormData((prev) => ({ ...prev, image: "" }));
+    setHasChanges(true);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -115,7 +165,8 @@ const BlogForm = ({
 
     setIsSubmitting(true);
     try {
-      await onSubmit(formData);
+      // Pass the form data and selected image to the parent component
+      await onSubmit(formData, selectedImage);
     } catch (error) {
       console.error("Failed to save blog:", error);
     } finally {
@@ -200,6 +251,12 @@ const BlogForm = ({
         title={formData.title}
         isEditing={isEditing}
         onToggleMetadata={() => setShowMetadataDropdown(!showMetadataDropdown)}
+        backgroundImage={
+          imagePreview ||
+          (formData.image && formData.slug
+            ? `/api/images/${formData.slug}/${formData.image}`
+            : undefined)
+        }
       >
         <MetadataDropdown
           isOpen={showMetadataDropdown}
@@ -263,6 +320,63 @@ const BlogForm = ({
               onStopEditing={stopEditing}
               onValueChange={handleInlineEdit}
             />
+
+            {/* Image Upload Section */}
+            <div className="mb-6">
+              <div className="mb-4">
+                <h2 className="text-xl font-semibold text-gray-900">
+                  Featured Image
+                </h2>
+                <p className="text-sm text-gray-600 mt-1">
+                  Upload an image to be featured with your blog post (optional)
+                </p>
+              </div>
+
+              <div className="space-y-4">
+                {/* Image Preview */}
+                {(imagePreview || formData.image) && (
+                  <div className="relative">
+                    <img
+                      src={
+                        imagePreview ||
+                        (formData.image
+                          ? `/api/images/${formData.slug}/${formData.image}`
+                          : "")
+                      }
+                      alt="Preview"
+                      className="w-full max-w-md h-48 object-cover rounded-lg border border-gray-200"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleRemoveImage}
+                      className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-600"
+                    >
+                      ×
+                    </button>
+                  </div>
+                )}
+
+                {/* Image Upload */}
+                <div className="flex items-center gap-4">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageSelect}
+                    className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                  />
+
+                  {selectedImage && (
+                    <div className="text-sm text-gray-600">
+                      Image will be uploaded when you save the blog
+                    </div>
+                  )}
+                </div>
+
+                {errors.image && (
+                  <p className="text-sm text-red-600">{errors.image}</p>
+                )}
+              </div>
+            </div>
 
             {/* Content Section */}
             <div className="mb-6">

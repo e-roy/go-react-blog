@@ -1,26 +1,17 @@
 import BlogForm from "@/components/BlogForm";
 import type { CreateBlogRequest } from "@/types/generated";
+import { createBlog } from "@/lib/api/services/blogs";
 
 const NewBlogPage = () => {
-  const handleCreateBlog = async (blogData: CreateBlogRequest) => {
+  const handleCreateBlog = async (
+    blogData: CreateBlogRequest,
+    selectedImage?: File | null
+  ) => {
     try {
-      const response = await fetch("/api/blogs", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(blogData),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to create blog");
-      }
-
-      const newBlog = await response.json();
-      // console.log("Blog created successfully:", newBlog);
+      const newBlog = await createBlog(blogData, selectedImage);
 
       // Navigate to the new blog post
-      window.location.href = `/blogs/${newBlog.data.slug}`;
+      window.location.href = `/blogs/${newBlog.slug}`;
     } catch (err) {
       console.error("Failed to create blog:", err);
       throw err; // Re-throw to let the form handle the error

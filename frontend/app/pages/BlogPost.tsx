@@ -38,7 +38,14 @@ const BlogPost = () => {
   const blog = embeddedData as Blog;
 
   return (
-    <Layout title={blog.title}>
+    <Layout
+      title={blog.title}
+      backgroundImage={
+        blog.image
+          ? `/api/images/${blog.slug}/${blog.image}?v=${Date.now()}`
+          : undefined
+      }
+    >
       <article className="bg-white rounded-lg shadow-md overflow-hidden">
         <div className="p-8">
           <div className="flex justify-between items-center">

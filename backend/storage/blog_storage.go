@@ -59,7 +59,7 @@ func (s *FileBlogStore) slugify(title string) string {
 }
 
 // getBlogDir returns the directory path for a blog
-func (s *FileBlogStore) getBlogDir(slug string) string {
+func (s *FileBlogStore) GetBlogDir(slug string) string {
 	return filepath.Join(s.dataDir, slug)
 }
 
@@ -73,6 +73,11 @@ func (s *FileBlogStore) getBlogMetadataPath(slug string) string {
 	return filepath.Join(s.dataDir, slug, "metadata.json")
 }
 
+// getBlogImagePath returns the image file path for a blog
+func (s *FileBlogStore) getBlogImagePath(slug string, imageFilename string) string {
+	return filepath.Join(s.dataDir, slug, imageFilename)
+}
+
 // generateUUID generates a new UUID for blog identification
 func (s *FileBlogStore) generateUUID() uuid.UUID {
 	return uuid.New()
@@ -80,7 +85,7 @@ func (s *FileBlogStore) generateUUID() uuid.UUID {
 
 // saveBlog saves a blog to its directory
 func (s *FileBlogStore) saveBlog(blog models.Blog, slug string) error {
-	blogDir := s.getBlogDir(slug)
+	blogDir := s.GetBlogDir(slug)
 	
 	// Create blog directory
 	if err := os.MkdirAll(blogDir, 0755); err != nil {
@@ -92,6 +97,7 @@ func (s *FileBlogStore) saveBlog(blog models.Blog, slug string) error {
 		"id":               blog.ID.String(),
 		"slug":             slug,
 		"title":            blog.Title,
+		"image":            blog.Image,
 		"author_name":      blog.AuthorName,
 		"author_username":  blog.AuthorUsername,
 		"meta_name":        blog.MetaName,
@@ -116,6 +122,40 @@ func (s *FileBlogStore) saveBlog(blog models.Blog, slug string) error {
 	contentPath := s.getBlogContentPath(slug)
 	if err := os.WriteFile(contentPath, []byte(blog.Content), 0644); err != nil {
 		return fmt.Errorf("failed to write content: %w", err)
+	}
+
+	return nil
+}
+
+// saveBlogImage saves an image file for a blog
+func (s *FileBlogStore) saveBlogImage(slug string, imageFilename string, imageData []byte) error {
+	blogDir := s.GetBlogDir(slug)
+	
+	// Create blog directory if it doesn't exist
+	if err := os.MkdirAll(blogDir, 0755); err != nil {
+		fmt.Printf("❌ Failed to create blog directory %s: %v\n", blogDir, err)
+		return fmt.Errorf("failed to create blog directory: %w", err)
+	}
+
+	// Save image file
+	imagePath := s.getBlogImagePath(slug, imageFilename)
+	if err := os.WriteFile(imagePath, imageData, 0644); err != nil {
+		fmt.Printf("❌ Failed to write image to %s: %v\n", imagePath, err)
+		return fmt.Errorf("failed to write image: %w", err)
+	}
+
+	return nil
+}
+
+// deleteBlogImage deletes an image file for a blog
+func (s *FileBlogStore) deleteBlogImage(slug string, imageFilename string) error {
+	if imageFilename == "" {
+		return nil // No image to delete
+	}
+
+	imagePath := s.getBlogImagePath(slug, imageFilename)
+	if err := os.Remove(imagePath); err != nil && !os.IsNotExist(err) {
+		return fmt.Errorf("failed to delete image: %w", err)
 	}
 
 	return nil
@@ -200,11 +240,18 @@ func (s *FileBlogStore) loadAllBlogs() ([]models.Blog, error) {
 						continue
 					}
 
+					// Get image field (handle both old and new format)
+					var image string
+					if imageVal, ok := metadata["image"]; ok && imageVal != nil {
+						image = imageVal.(string)
+					}
+
 					// Create blog model with metadata
 					blog := models.Blog{
 						ID:              blogID,
 						Title:           metadata["title"].(string),
 						Content:         string(content),
+						Image:           image,
 						AuthorName:      metadata["author_name"].(string),
 						AuthorUsername:  metadata["author_username"].(string),
 						MetaName:        metadata["meta_name"].(string),
@@ -335,6 +382,19 @@ func (s *FileBlogStore) UpdateBlogBySlug(slug string, updates models.UpdateBlogR
 	if updates.Content != nil {
 		existingBlog.Content = *updates.Content
 	}
+	if updates.Image != nil {
+		// Delete old image if it exists
+		if existingBlog.Image != "" {
+			s.deleteBlogImage(oldSlug, existingBlog.Image)
+		}
+		existingBlog.Image = *updates.Image
+	}
+	if updates.AuthorName != nil {
+		existingBlog.AuthorName = *updates.AuthorName
+	}
+	if updates.AuthorUsername != nil {
+		existingBlog.AuthorUsername = *updates.AuthorUsername
+	}
 	if updates.MetaName != nil {
 		existingBlog.MetaName = *updates.MetaName
 	}
@@ -351,8 +411,8 @@ func (s *FileBlogStore) UpdateBlogBySlug(slug string, updates models.UpdateBlogR
 
 	// If slug changed, rename the folder
 	if updates.Slug != nil && *updates.Slug != oldSlug {
-		oldDir := s.getBlogDir(oldSlug)
-		newDir := s.getBlogDir(*updates.Slug)
+		oldDir := s.GetBlogDir(oldSlug)
+		newDir := s.GetBlogDir(*updates.Slug)
 		
 		// Rename the directory
 		if err := os.Rename(oldDir, newDir); err != nil {
@@ -392,10 +452,15 @@ func (s *FileBlogStore) DeleteBlogBySlug(slug string) error {
 	}
 
 	// Remove entire blog directory
-	blogDir := s.getBlogDir(slug)
+	blogDir := s.GetBlogDir(slug)
 	if err := os.RemoveAll(blogDir); err != nil {
 		return fmt.Errorf("failed to delete blog directory: %w", err)
 	}
 
 	return nil
+}
+
+// SaveBlogImage implements the BlogStore interface
+func (s *FileBlogStore) SaveBlogImage(slug string, imageFilename string, imageData []byte) error {
+	return s.saveBlogImage(slug, imageFilename, imageData)
 }
